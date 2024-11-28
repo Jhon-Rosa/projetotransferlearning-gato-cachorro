@@ -1,4 +1,6 @@
 "# projetotransferlearning-gato-cachorro" 
+# Parte 01
+
 import torch
 import torch.optim as optim
 from torchvision import datasets, transforms, models
@@ -91,3 +93,193 @@ for epoch in range(epoch_start, num_epochs):
     save_checkpoint(epoch, model, optimizer, avg_loss)
 
 print("Treinamento concluído!")
+
+
+
+# Parte 02
+
+import torch
+from torchvision import transforms, models
+from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
+from PIL import Image
+import os
+
+# Caminho do checkpoint salvo
+checkpoint_path = "/content/drive/MyDrive/gato-cachorro/model_checkpoint.pth"
+
+# Configurar dispositivo
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Função para carregar o modelo
+def carregar_modelo(checkpoint_path):
+    # Inicializar o modelo
+    model = models.resnet50(weights=None)
+    model.fc = torch.nn.Linear(model.fc.in_features, 2)  # Ajustar para 2 classes
+    # Carregar os pesos do checkpoint
+    checkpoint = torch.load(checkpoint_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model = model.to(device)
+    model.eval()  # Modo de avaliação
+    print("Modelo carregado com sucesso!")
+    return model
+
+# Função para processar uma imagem
+def processar_imagem(image_path):
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    image = Image.open(image_path).convert("RGB")
+    input_tensor = transform(image).unsqueeze(0).to(device)  # Adiciona batch dimension
+    return input_tensor
+
+# Função para realizar a previsão
+def prever_imagem(model, image_path, class_names):
+    input_tensor = processar_imagem(image_path)
+    outputs = model(input_tensor)
+    _, predicted_class = outputs.max(1)  # Índice da classe prevista
+    return class_names[predicted_class.item()]
+
+# Testar o modelo em uma única imagem
+def testar_imagem_unica(model, image_path, class_names):
+    classe = prever_imagem(model, image_path, class_names)
+    print(f"Imagem: {image_path}, Classe prevista: {classe}")
+
+
+# Main
+if __name__ == "__main__":
+    # Montar o Google Drive
+    from google.colab import drive
+    drive.mount('/content/drive', force_remount=True)
+
+    # Diretório das novas imagens para teste
+    test_dir = "/content/drive/MyDrive/gato-cachorro/gato-cachorro/Teste/teste1.jpg"  # Atualize conforme necessário
+    image_path_teste = "/content/drive/MyDrive/gato-cachorro/gato-cachorro/Teste/teste1.jpg"  # Substitua por uma imagem real
+
+    # Diretório do conjunto de treino para obter os nomes das classes
+    train_dir = "/content/drive/MyDrive/gato-cachorro/gato-cachorro"
+    train_dataset = ImageFolder(train_dir)
+    class_names = train_dataset.classes  # Exemplo: ['Cat', 'Dog']
+
+    # Carregar o modelo
+    model = carregar_modelo(checkpoint_path)
+
+    # Testar uma única imagem
+    print("\nTestando uma única imagem:")
+    testar_imagem_unica(model, image_path_teste, class_names)
+
+
+from PIL import Image
+
+# Recarregar a imagem para garantir que a versão mais recente seja carregada
+imagem = Image.open(image_path_teste).convert('RGB')
+imagem.show()  # Mostrar a imagem carregada
+
+
+# Parte 03
+
+import torch
+from torchvision import transforms, models
+from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
+from PIL import Image
+import os
+
+# Caminho do checkpoint salvo
+checkpoint_path = "/content/drive/MyDrive/gato-cachorro/model_checkpoint.pth"
+
+# Configurar dispositivo
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Função para carregar o modelo
+def carregar_modelo(checkpoint_path):
+    # Inicializar o modelo
+    model = models.resnet50(weights=None)
+    model.fc = torch.nn.Linear(model.fc.in_features, 2)  # Ajustar para 2 classes
+    # Carregar os pesos do checkpoint
+    checkpoint = torch.load(checkpoint_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model = model.to(device)
+    model.eval()  # Modo de avaliação
+    print("Modelo carregado com sucesso!")
+    return model
+
+# Função para processar uma imagem
+def processar_imagem(image_path):
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    image = Image.open(image_path).convert("RGB")
+    input_tensor = transform(image).unsqueeze(0).to(device)  # Adiciona batch dimension
+    return input_tensor
+
+# Função para realizar a previsão
+def prever_imagem(model, image_path, class_names):
+    input_tensor = processar_imagem(image_path)
+    outputs = model(input_tensor)
+    _, predicted_class = outputs.max(1)  # Índice da classe prevista
+    return class_names[predicted_class.item()]
+
+# Testar o modelo em uma única imagem
+def testar_imagem_unica(model, image_path, class_names):
+    classe = prever_imagem(model, image_path, class_names)
+    print(f"Imagem: {image_path}, Classe prevista: {classe}")
+
+
+# Main
+if __name__ == "__main__":
+    # Montar o Google Drive
+    from google.colab import drive
+    drive.mount('/content/drive', force_remount=True)
+
+    # Diretório das novas imagens para teste
+    test_dir = "/content/drive/MyDrive/gato-cachorro/gato-cachorro/Teste/teste1.jpg"  # Atualize conforme necessário
+    image_path_teste = "/content/drive/MyDrive/gato-cachorro/gato-cachorro/Teste/teste1.jpg"  # Substitua por uma imagem real
+
+    # Diretório do conjunto de treino para obter os nomes das classes
+    train_dir = "/content/drive/MyDrive/gato-cachorro/gato-cachorro"
+    train_dataset = ImageFolder(train_dir)
+    class_names = train_dataset.classes  # Exemplo: ['Cat', 'Dog']
+
+    # Carregar o modelo
+    model = carregar_modelo(checkpoint_path)
+
+    # Testar uma única imagem
+    print("\nTestando uma única imagem:")
+    testar_imagem_unica(model, image_path_teste, class_names)
+
+
+from PIL import Image
+
+# Recarregar a imagem para garantir que a versão mais recente seja carregada
+imagem = Image.open(image_path_teste).convert('RGB')
+imagem.show()  # Mostrar a imagem carregada
+
+
+# Parte 04
+
+from IPython.display import Image, display
+import torch
+from PIL import Image as PILImage
+
+# Caminho para a imagem de teste
+image_path = "/content/drive/MyDrive/gato-cachorro/gato-cachorro/Teste/teste1.jpg"
+
+# Baixar o modelo YOLOv5 pré-treinado (se necessário)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
+# Detectar objetos
+results = model(image_path)
+
+# Exibir a imagem com a detecção diretamente sem salvar no disco
+results.show()  # Exibe a imagem com a detecção
+
+# Para carregar e exibir a imagem original (com as detecções):
+imagem = PILImage.open(image_path).convert('RGB')
+imagem.show()  # Mostrar a imagem carregada com as detecções
